@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -94,7 +95,30 @@ public class Helper {
         return rows;
     }
 
-    public static <T> boolean updateEntity(Class<T> tClass, long id, Map<String,Object> fliedMap)
+    public static <T> boolean updateEntity(Class<T> tClass, long id, Map<String,Object> fliedMap){
+        if(CollectionUtil.isEmpty(fliedMap)){
+            LOGGER.error("Can't update entity : map is null");
+            return false;
+        }
+
+        String sql = "UPDATE "+getTableName(tClass)+" SET ";
+        StringBuilder colums = new StringBuilder();
+        for(String filename:fliedMap.keySet()){
+            colums.append(filename).append(" = ?,");
+        }
+        sql += colums.substring(0,colums.lastIndexOf(",")).toString()+" WHERE id = ?";
+        List<Object>lists = new ArrayList<>();
+        lists.addAll(fliedMap.values());
+        lists.add(id);
+
+        Object[] params = lists.toArray();
+
+        return executeUpdate(sql,params) == 1;
+    }
+
+    public static String getTableName(Class<?> entity){
+        return entity.getSimpleName();
+    }
     public static void closeConnection() {
         Connection connection = CONNECTION_THREAD_LOCAL.get();
         if (connection != null) {

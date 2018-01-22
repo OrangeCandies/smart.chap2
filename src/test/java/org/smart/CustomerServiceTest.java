@@ -58,7 +58,7 @@ public class CustomerServiceTest {
     public void updateCustomer() {
         long id =1L;
         Map<String,Object> feild = new HashMap<String, Object>();
-        feild.put("contact","updateTest");
+        feild.put("remark","updateTestOne");
         boolean result = customerService.updateCustomer(id,feild);
         Assert.assertTrue(result);
     }

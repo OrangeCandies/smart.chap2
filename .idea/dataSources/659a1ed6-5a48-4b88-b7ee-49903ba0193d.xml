@@ -918,7 +918,7 @@
       <Charset>utf8mb4</Charset>
       <DefaultForCharset>0</DefaultForCharset>
     </collation>
-    <table id="232" parent="3" name="custom">
+    <table id="232" parent="3" name="customer">
       <Engine>InnoDB</Engine>
     </table>
     <column id="233" parent="232" name="id">

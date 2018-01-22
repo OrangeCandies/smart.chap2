@@ -27,7 +27,7 @@ public class CustomerService {
     }
 
     public boolean updateCustomer(long id,Map<String,Object> feildMap) {
-        return  false;
+       return Helper.updateEntity(Customer.class,id,feildMap);
     }
 
     public boolean deleteCustomer(long id){
