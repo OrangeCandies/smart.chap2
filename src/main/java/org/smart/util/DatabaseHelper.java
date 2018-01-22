@@ -1,5 +1,6 @@
 package org.smart.util;
 
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
@@ -7,18 +8,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
-public class Helper {
+public class DatabaseHelper{
 
     private static final String DRIVER;
     private static final String URL;
     private static final String USERNAME;
     private static final String PASSWORD;
-    private static final Logger LOGGER = LoggerFactory.getLogger(Helper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHelper.class);
     private static final QueryRunner QUERY_RUNNER = new QueryRunner();
+    private static final BasicDataSource BASIC_DATA_SOURCE = new BasicDataSource();
 
     private static final ThreadLocal<Connection> CONNECTION_THREAD_LOCAL = new ThreadLocal<>();
 
@@ -28,12 +32,12 @@ public class Helper {
         URL = p.getProperty("jdbc.url");
         USERNAME = p.getProperty("jdbc.username");
         PASSWORD = p.getProperty("jdbc.password");
-        try {
-            Class.forName(DRIVER);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            LOGGER.error("can't find driver", e);
-        }
+
+        BASIC_DATA_SOURCE.setUrl(URL);
+        BASIC_DATA_SOURCE.setDriverClassName(DRIVER);
+        BASIC_DATA_SOURCE.setUsername(USERNAME);
+        BASIC_DATA_SOURCE.setPassword(PASSWORD);
+
     }
 
     public static <T> List<T> queryEntityList(Class<T> tClass, String sql, Object... params) {
@@ -68,7 +72,7 @@ public class Helper {
         Connection connection = CONNECTION_THREAD_LOCAL.get();
         if (connection == null) {
             try {
-                connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+                connection = BASIC_DATA_SOURCE.getConnection();
             } catch (SQLException e) {
                 e.printStackTrace();
             } finally {
