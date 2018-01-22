@@ -11,19 +11,19 @@ public class CustomerService {
 
     public List<Customer> getCustomerList(){
         List<Customer> customers = null;
-        String sql = "SELECT * FROM custom";
+        String sql = "SELECT * FROM customer";
         customers = Helper.queryEntityList(Customer.class,sql);
         return  customers;
     }
 
     public Customer getCustomer(long id){
-        String sql = "SELECT * FROM custom WHERE id = ?";
+        String sql = "SELECT * FROM customer WHERE id = ?";
         Customer customer = Helper.queryEntity(Customer.class,sql,id);
         return customer;
     }
 
     public boolean createCustomer(Map<String,Object> feildMap) {
-        return  false;
+        return Helper.insertEntity(Customer.class,feildMap);
     }
 
     public boolean updateCustomer(long id,Map<String,Object> feildMap) {
@@ -31,7 +31,7 @@ public class CustomerService {
     }
 
     public boolean deleteCustomer(long id){
-        return false;
+        return Helper.deleteEntity(Customer.class,id);
     }
 
 

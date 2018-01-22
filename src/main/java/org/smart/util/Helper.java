@@ -9,10 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class Helper {
 
@@ -82,43 +79,66 @@ public class Helper {
     }
 
 
-    public static int executeUpdate(String sql, Object...o) {
+    public static int executeUpdate(String sql, Object... o) {
         Connection connection = getConnection();
         int rows = 0;
         try {
-            rows = QUERY_RUNNER.update(connection,sql,o);
+            rows = QUERY_RUNNER.update(connection, sql, o);
         } catch (SQLException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             closeConnection();
         }
         return rows;
     }
 
-    public static <T> boolean updateEntity(Class<T> tClass, long id, Map<String,Object> fliedMap){
-        if(CollectionUtil.isEmpty(fliedMap)){
+    public static <T> boolean updateEntity(Class<T> tClass, long id, Map<String, Object> fliedMap) {
+        if (CollectionUtil.isEmpty(fliedMap)) {
             LOGGER.error("Can't update entity : map is null");
             return false;
         }
 
-        String sql = "UPDATE "+getTableName(tClass)+" SET ";
+        String sql = "UPDATE " + getTableName(tClass) + " SET ";
         StringBuilder colums = new StringBuilder();
-        for(String filename:fliedMap.keySet()){
+        for (String filename : fliedMap.keySet()) {
             colums.append(filename).append(" = ?,");
         }
-        sql += colums.substring(0,colums.lastIndexOf(",")).toString()+" WHERE id = ?";
-        List<Object>lists = new ArrayList<>();
+        sql += colums.substring(0, colums.lastIndexOf(",")).toString() + " WHERE id = ?";
+        List<Object> lists = new ArrayList<>();
         lists.addAll(fliedMap.values());
         lists.add(id);
 
         Object[] params = lists.toArray();
 
+        return executeUpdate(sql, params) == 1;
+    }
+
+    public static <T> boolean deleteEntity(Class<T> tClass, long id) {
+        String sql = " DELETE FROM " + getTableName(tClass) + " WHERE id =?";
+        return executeUpdate(sql, id) == 1;
+    }
+
+
+    public static <T> boolean insertEntity(Class<T> tClass, Map<String, Object> fliedName) {
+        T entity = null;
+        String sql = "INSERT INTO " + getTableName(tClass);
+        StringBuilder colums = new StringBuilder("(");
+        StringBuilder values = new StringBuilder(" VALUES (");
+        for (String flied : fliedName.keySet()) {
+            colums.append(flied + ", ");
+            values.append("?, ");
+        }
+        colums.replace(colums.lastIndexOf(","), colums.length(), ")");
+        values.replace(values.lastIndexOf(","), values.length(), ")");
+        sql = sql + colums + values;
+        Object[] params = fliedName.values().toArray();
         return executeUpdate(sql,params) == 1;
     }
 
-    public static String getTableName(Class<?> entity){
+    public static String getTableName(Class<?> entity) {
         return entity.getSimpleName();
     }
+
     public static void closeConnection() {
         Connection connection = CONNECTION_THREAD_LOCAL.get();
         if (connection != null) {

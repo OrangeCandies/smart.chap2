@@ -26,7 +26,7 @@ public class CustomerServiceTest {
     public void getCustomerListTest(){
         List<Customer> customerList = customerService.getCustomerList();
       //  customerList.forEach((e)-> System.out.println(e));
-        Assert.assertEquals(2,customerList.size());
+        Assert.assertEquals(3,customerList.size());
     }
 
     @Test
@@ -49,7 +49,7 @@ public class CustomerServiceTest {
 
     @Test
     public void delelteCustomer(){
-        long id = 1L;
+        long id = 4L;
         boolean b = customerService.deleteCustomer(id);
         Assert.assertTrue(b);
     }
